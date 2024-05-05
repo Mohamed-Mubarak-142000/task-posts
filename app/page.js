@@ -2,7 +2,7 @@ import ShowAllPosts from "./_components/ShowAllPosts";
 
 export default function Home() {
   return (
-    <main className="flex min-h-screen flex-col items-center justify-center max-w-2xl mx-auto p-2 ">
+    <main className="flex flex-col items-start w-[80%] mx-auto p-2 my-3">
       <ShowAllPosts />
     </main>
   );

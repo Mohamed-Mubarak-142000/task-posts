@@ -3,10 +3,8 @@ import React from "react";
 import useStore from "../_store/store";
 
 const Header = () => {
-  const { search, setSearch } = useStore(); // Get the search term and function from Zustand
-
   return (
-    <header className="bg-white dark:bg-gray-900 shadow-xl">
+    <header className="bg-white shadow-md">
       <div className="mx-auto max-w-screen-xl px-4 sm:px-6 lg:px-8">
         <div className="flex h-16 items-center justify-between">
           <div className="md:flex md:items-center md:gap-12">
@@ -15,32 +13,29 @@ const Header = () => {
               href="/"
             >
               <span className="sr-only">Home</span>
-              <span className="text-white">Task</span>
-              <span>posts</span>
+              <span className="text-black">logo</span>
             </Link>
-          </div>
-
-          <div className="flex gap-1 items-center">
-            <label htmlFor="search">search:</label>
-            <input
-              value={search}
-              onChange={(e) => setSearch(e.target.value)}
-              type="text"
-              name="search"
-              id="search"
-              className="bg-gray-800 border border-teal-500 rounded-sm outline-none p-1"
-            />
           </div>
 
           <div className="hidden md:block">
             <nav>
               <ul style={{ display: "flex", gap: "10px" }}>
                 <li>
-                  <Link href="/">Home</Link>
+                  <Link
+                    href="/"
+                    className="bg-blue-600 px-4 py-2 text-white rounded capitalize"
+                  >
+                    register
+                  </Link>
                 </li>
 
                 <li>
-                  <Link href="/create-post">Create Post</Link>
+                  <Link
+                    href="/create-post"
+                    className="capitalize rounded text-white py-2 px-3 bg-blue-600"
+                  >
+                    login
+                  </Link>
                 </li>
               </ul>
             </nav>

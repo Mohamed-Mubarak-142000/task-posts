@@ -5,6 +5,8 @@ const useStore = create((set) => ({
   title: "",
   body: "",
   search: "",
+  userid: "",
+  setUserid: (userid) => set({ userid }),
 
   // Set posts
   // Set posts and sort them by id in descending order

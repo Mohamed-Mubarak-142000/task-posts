@@ -18,7 +18,7 @@ const ShowAllPosts = () => {
     queryFn: fetchPosts,
   });
 
-  const { setPosts, search } = useStore();
+  const { setPosts, search, setSearch } = useStore();
 
   // Filter posts based on the search term
   const filteredPosts = useStore((state) =>
@@ -46,16 +46,29 @@ const ShowAllPosts = () => {
 
   // Render filtered posts
   return (
-    <div className="flex flex-col gap-3 my-5">
-      {filteredPosts.map((post) => (
-        <OnePost key={post.id} post={post} />
-      ))}
-      {filteredPosts.length === 0 && (
-        <h2 className="text-gray-500 text-center text-2xl">
-          No posts found for "{search}"
-        </h2>
-      )}
-    </div>
+    <section className="w-[100%] md:w-[60%]">
+      <div className="flex flex-col gap-5 my-5 ">
+        <div className="flex gap-1 items-center mb-5 ">
+          <input
+            value={search}
+            onChange={(e) => setSearch(e.target.value)}
+            type="text"
+            name="search"
+            id="search"
+            className=" border border-gray-300 rounded-sm  outline-none p-1 py-3 w-full"
+            placeholder="Typing..."
+          />
+        </div>
+        {filteredPosts.map((post) => (
+          <OnePost key={post.id} post={post} />
+        ))}
+        {filteredPosts.length === 0 && (
+          <h2 className="text-gray-500 text-center text-2xl">
+            No posts found for "{search}"
+          </h2>
+        )}
+      </div>
+    </section>
   );
 };
 
