@@ -1,6 +1,5 @@
 import Link from "next/link";
 import React from "react";
-import useStore from "../_store/store";
 
 const Header = () => {
   return (

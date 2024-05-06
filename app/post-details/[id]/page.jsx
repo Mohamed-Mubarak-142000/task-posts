@@ -1,92 +1,105 @@
 "use client";
-import React, { useEffect, useState } from "react";
-import RelatedPosts from "@/app/_components/RelatedPosts";
-import PostSkeleton from "@/app/_skeleton/PostSkeleton";
-import getPostsApi from "@/app/_utils/getPostsApi";
-import { MdOutlineReplay } from "react-icons/md";
+import useStore from "../../_store/store";
+import { useEffect } from "react";
+import apiService from "../../_utils/apiService";
+import { useQuery } from "@tanstack/react-query";
+import OnePost from "@/app/_components/OnePost";
+import SearchInput from "@/app/_components/SearchInput";
+import CommentSkeleton from "@/app/_skeleton/CommentSkeleton";
+import { BiLike, BiDislike } from "react-icons/bi";
+import { FaRegComment } from "react-icons/fa6";
+import { CiHeart } from "react-icons/ci";
+import { IoShareSocialOutline } from "react-icons/io5";
+import { MdOutlineReply } from "react-icons/md";
+import OneComment from "@/app/_components/OneComment";
+import Reactions from "@/app/_components/Reactions";
 
-const Page = ({ params }) => {
-  // Initialize postDetails and comments
-  const [postDetails, setPostDetails] = useState(null);
-  const [comments, setComments] = useState([]);
-  const [userId, setUserId] = useState(1);
+const page = ({ params }) => {
+  const { id } = params;
+  const { setPosts } = useStore();
 
-  const getSingleProductByID = () => {
-    getPostsApi.getOnePosts(params?.id).then((res) => {
-      setPostDetails(res?.data);
-      setUserId(res?.data?.userId);
-    });
-  };
+  // Fetch post details by ID
+  const {
+    data: postDetail,
+    isLoading: isPostLoading,
+    error: postError,
+  } = useQuery({
+    queryKey: ["postDetail", id], // Query key array
+    queryFn: () => apiService.getPostById(id), // Query function
+    enabled: !!id, // Only run query when id is available
+  });
 
-  const getCommentsOfPost = () => {
-    getPostsApi.getCommentsOfPost(params?.id).then((res) => {
-      setComments(res?.data);
-    });
-  };
+  //comment
+  // Fetch post details by ID
+  const {
+    data: postComment,
+    isLoading: iscommentLoading,
+    error: commentError,
+  } = useQuery({
+    queryKey: ["commentPost", id], // Query key array
+    queryFn: () => apiService.getCommentsOfPost(id), // Query function
+    enabled: !!id, // Only run query when id is available
+  });
 
+  // Fetch related posts by userId
+  const {
+    data: relatedPosts,
+    isLoading: isRelatedLoading,
+    error: relatedError,
+  } = useQuery({
+    queryKey: ["relatedPosts", postDetail?.userId], // Query key array
+    queryFn: () => apiService.getPostsByUserId(postDetail?.userId), // Query function
+    enabled: !!postDetail?.userId, // Only run query when userId is available
+  });
+
+  // Update Zustand store with fetched related posts
   useEffect(() => {
-    getSingleProductByID();
-    getCommentsOfPost();
-  }, [params?.id]);
+    if (relatedPosts) {
+      setPosts(relatedPosts);
+    }
+  }, [relatedPosts, setPosts]);
+
+  if (isPostLoading || isRelatedLoading) {
+    return <CommentSkeleton />;
+  }
+
+  if (postError) {
+    return <div>Error: {postError.message}</div>;
+  }
+
+  if (relatedError) {
+    return <div>Error: {relatedError.message}</div>;
+  }
 
   return (
-    <section className="w-[80%] my-5 mx-auto grid grid-cols-1 gap-6 md:grid-cols-2">
-      {/* Post Details and Comments Section */}
-      <div className="p-3 rounded bg-gray-1000 shadow-lg ">
-        {postDetails ? (
-          <>
-            {/* Post Details */}
-            <div className="flex items-center gap-2 mb-4">
-              <div className="bg-gray-300 w-10 h-10 rounded-full" />
-              <div className="flex flex-col">
-                <span className="capitalize font-medium">yousef helmy</span>
-                <span className="text-sm text-blue-500">@yousef helmy</span>
-              </div>
-            </div>
-            <div className="flex flex-col gap-2 mb-4">
-              <h2 className="capitalize text-lg">{postDetails.title}</h2>
-              <p className="capitalize text-sm text-gray-700">
-                {postDetails.body}
-              </p>
-            </div>
-            <div className="bg-gray-300 w-full h-72 rounded mb-4" />
+    <div className="mt-5 flex justify-center flex-col md:flex-row md:justify-between ">
+      {/* Render post detail */}
+      <div className=" w-full md:w-[60%] ">
+        <OnePost show={true} post={postDetail} />
 
-            {/* Comments Section */}
-            <div>
-              {comments.map((comment) => (
-                <section
-                  key={comment.id}
-                  className="border my-2 rounded-lg shadow-sm p-2"
-                >
-                  <div className="flex items-center justify-between mb-2">
-                    <div className="flex items-center gap-2">
-                      <div className="bg-gray-300 w-10 h-10 rounded-full" />
-                      <div className="flex flex-col text-xs text-gray-700">
-                        <span>{comment.name}</span>
-                        <span>{comment.email}</span>
-                        <span>2 weeks ago</span>
-                      </div>
-                    </div>
-                    <button className="text-blue-500 flex items-center capitalize font-semibold text-sm">
-                      <MdOutlineReplay /> Reply
-                    </button>
-                  </div>
-                  <div className="text-xs">{comment.body}</div>
-                </section>
-              ))}
-            </div>
-          </>
-        ) : (
-          <div className="text-gray-500">
-            <PostSkeleton />
-          </div>
-        )}
+        <Reactions />
+
+        {/***comment */}
+        {postComment.map((comment) => {
+          return <OneComment comment={comment} />;
+        })}
       </div>
 
-      {/* Related Posts Component */}
-      <RelatedPosts userId={userId} />
-    </section>
+      {/* Render related posts using Zustand state */}
+      <div className=" w-full md:w-[30%]">
+        <SearchInput showIcon={true} text="" />
+        {relatedPosts?.map((post) => (
+          <OnePost post={post} show={false} />
+        ))}
+
+        {relatedPosts.length === 0 && (
+          <h2 className="text-gray-500 text-center capitalize text-2xl">
+            No posts found for relatedPosts
+          </h2>
+        )}
+      </div>
+    </div>
   );
 };
 
-export default Page;
+export default page;
