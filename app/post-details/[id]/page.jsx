@@ -36,7 +36,7 @@ const page = ({ params }) => {
     isLoading: iscommentLoading,
     error: commentError,
   } = useQuery({
-    queryKey: ["commentPost", id], // Query key array
+    queryKey: ["postComment", id], // Query key array
     queryFn: () => apiService.getCommentsOfPost(id), // Query function
     enabled: !!id, // Only run query when id is available
   });
@@ -80,7 +80,7 @@ const page = ({ params }) => {
         <Reactions />
 
         {/***comment */}
-        {postComment.map((comment) => {
+        {postComment?.map((comment) => {
           return <OneComment comment={comment} />;
         })}
       </div>
